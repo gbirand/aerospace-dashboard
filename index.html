@@ -3,16 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aerospace Dashboard – RSS Embed</title>
+  <title>Aerospace Dashboard – RSS to JSON</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f9; }
+    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
     h1 { color: #003366; }
-    iframe { width: 100%; height: 600px; border: none; }
+    .news { background: white; padding: 15px; margin-bottom: 10px; border-left: 4px solid #003366; }
+    .news h3 { margin-top: 0; }
   </style>
 </head>
 <body>
-  <h1>Aerospace News – Embedded RSS Feed</h1>
-  <p>Powered by RSS.app – pre-filtered for aerospace updates</p>
-  <iframe src="https://rss.app/embed/v1/wall/oVv0DAtu6F0Lae5u" sandbox="allow-scripts allow-same-origin"></iframe>
+  <h1>Live Aerospace Headlines (Keyword Filtered)</h1>
+  <div id="feed"></div>
+
+  <script>
+    async function fetchNews() {
+      const res = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https://spacenews.com/feed/");
+      const data = await res.json();
+      const container = document.getElementById("feed");
+      const keywords = ['star tracker', 'sun sensor', 'space camera', 'attitude determination'];
+      data.items.forEach(item => {
+        if (keywords.some(kw => item.title.toLowerCase().includes(kw) || item.description.toLowerCase().includes(kw))) {
+          const div = document.createElement('div');
+          div.className = 'news';
+          div.innerHTML = `<h3><a href="${item.link}" target="_blank">${item.title}</a></h3><p>${item.pubDate}</p>`;
+          container.appendChild(div);
+        }
+      });
+    }
+    fetchNews();
+  </script>
 </body>
 </html>
